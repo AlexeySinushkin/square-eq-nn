@@ -1,0 +1,733 @@
+{
+  "layers": [
+    {
+      "neurons": [
+        {
+          "id": "a",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "c",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "neurons": [
+        {
+          "id": "m1",
+          "output": 0.23,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "Sigmoid",
+          "input_links": [
+            {
+              "source_id": "a",
+              "weight": 0.1
+            },
+            {
+              "source_id": "b",
+              "weight": 0.1
+            },
+            {
+              "source_id": "c",
+              "weight": 0.1
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "m2",
+          "output": 0.24,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "Sigmoid",
+          "input_links": [
+            {
+              "source_id": "a",
+              "weight": 0.1
+            },
+            {
+              "source_id": "b",
+              "weight": 0.1
+            },
+            {
+              "source_id": "c",
+              "weight": 0.1
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "m3",
+          "output": 0.24,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "Sigmoid",
+          "input_links": [
+            {
+              "source_id": "a",
+              "weight": 0.1
+            },
+            {
+              "source_id": "b",
+              "weight": 0.1
+            },
+            {
+              "source_id": "c",
+              "weight": 0.1
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "m4",
+          "output": 0.24,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "Sigmoid",
+          "input_links": [
+            {
+              "source_id": "a",
+              "weight": 0.1
+            },
+            {
+              "source_id": "b",
+              "weight": 0.1
+            },
+            {
+              "source_id": "c",
+              "weight": 0.1
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "neurons": [
+        {
+          "id": "n1",
+          "output": 0.23,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "Sigmoid",
+          "input_links": [
+            {
+              "source_id": "m1",
+              "weight": 0.1
+            },
+            {
+              "source_id": "m2",
+              "weight": 0.1
+            },
+            {
+              "source_id": "m3",
+              "weight": 0.1
+            },
+            {
+              "source_id": "m4",
+              "weight": 0.1
+            }
+          ]
+        },
+        {
+          "id": "n2",
+          "output": 0.23,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "Sigmoid",
+          "input_links": [
+            {
+              "source_id": "m1",
+              "weight": 0.1
+            },
+            {
+              "source_id": "m2",
+              "weight": 0.1
+            },
+            {
+              "source_id": "m3",
+              "weight": 0.1
+            },
+            {
+              "source_id": "m4",
+              "weight": 0.1
+            }
+          ]
+        },
+        {
+          "id": "n3",
+          "output": 0.23,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "Sigmoid",
+          "input_links": [
+            {
+              "source_id": "m1",
+              "weight": 0.1
+            },
+            {
+              "source_id": "m2",
+              "weight": 0.1
+            },
+            {
+              "source_id": "m3",
+              "weight": 0.1
+            },
+            {
+              "source_id": "m4",
+              "weight": 0.1
+            }
+          ]
+        },
+        {
+          "id": "",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "neurons": [
+        {
+          "id": "x1",
+          "output": 0.23,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "Sigmoid",
+          "input_links": [
+            {
+              "source_id": "n1",
+              "weight": 0.1
+            },
+            {
+              "source_id": "n2",
+              "weight": 0.1
+            },
+            {
+              "source_id": "n3",
+              "weight": 0.1
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "x2",
+          "output": 0.23,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "Sigmoid",
+          "input_links": [
+            {
+              "source_id": "n1",
+              "weight": 0.1
+            },
+            {
+              "source_id": "n2",
+              "weight": 0.1
+            },
+            {
+              "source_id": "n3",
+              "weight": 0.1
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "neurons": [
+        {
+          "id": "",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "neurons": [
+        {
+          "id": "",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "neurons": [
+        {
+          "id": "",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "layers_count": 4
+}
