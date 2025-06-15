@@ -40,7 +40,7 @@ impl Neuron {
             input_links: std::array::from_fn(|_| Link::new_dummy()),
         }
     }
-    pub fn new_middle(id: String, value: f32, links_count: usize, link: [Link; MAX_LINKS]) -> Self {
+    pub fn new_middle(id: String, value: f32, link: [Link; MAX_LINKS]) -> Self {
         Neuron {
             id,
             output: value,

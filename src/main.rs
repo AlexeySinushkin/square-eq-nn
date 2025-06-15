@@ -22,9 +22,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut nn = build_nn();
 
-    for item in train_items {
-        forward(&mut nn, &item);
+    for epoch in 0..100 {
+        for item in &train_items {
+            forward(&mut nn, &item);
+            backward(&mut nn, &item, 0.1);
+        }
+        let test_item = train_items.first().unwrap();
+        let x1_output = nn.last().unwrap().neurons[0].output;
+        let x2_output = nn.last().unwrap().neurons[1].output;
+        forward(&mut nn, test_item);
+        let error_x1 = loss(test_item.x1, x1_output);
+        let error_x2 = loss(test_item.x2, x2_output);
+        println!("epoch {epoch}: x1 error =  {error_x1}, x2 error = {error_x2}");
     }
+
 
     Ok(())
 }
@@ -65,25 +76,52 @@ fn forward(nn: &mut Network, train_item: &TrainItem) {
     }
 }
 
-fn backward(nn: &mut Network, learning_rate: f32, train_item: &TrainItem) {
-    let e_x1 = loss(nn[LAYERS_COUNT - 1].neurons[0].output, train_item.x1);
-    let e_x2 = loss(nn[LAYERS_COUNT - 1].neurons[1].output, train_item.x2);
+fn backward(nn: &mut Network, train_item: &TrainItem, learning_rate: f32) {
+    let output_neuron_x1 = &nn[LAYERS_COUNT - 1].neurons[0];
+    let output_neuron_x2 = &nn[LAYERS_COUNT - 1].neurons[1];
+    
+    let e_x1 = (train_item.x1 - output_neuron_x1.output)
+        * sigmoid_derivative(output_neuron_x1.sum_input);
+    let e_x2 = (train_item.x2 - output_neuron_x2.output)
+        * sigmoid_derivative(output_neuron_x2.sum_input);
+
     nn[LAYERS_COUNT - 1].neurons[0].error = e_x1;
     nn[LAYERS_COUNT - 1].neurons[1].error = e_x2;
-    
-    for layer_index in LAYERS_COUNT-1..0 {
+      
+    for layer_index in (1..LAYERS_COUNT).rev() {
         let (prev, current) = nn.split_at_mut(layer_index);
-        let prev_layer = &prev[layer_index - 1];
+        let prev_layer = &mut prev[layer_index - 1];
         let current_layer = &mut current[0];
-
+        //weight updates
         for neuron in &mut current_layer.neurons {
             if !neuron.is_dummy() {
                 for link in neuron.input_links.iter_mut() {
-                    let derive = sigmoid_derivative(neuron.sum_input);
-                    let delta = neuron.error * derive * prev_layer.get_value(&link.source_id);
-                    link.weight += delta * learning_rate;
+                    if !link.is_dummy() {
+                        let derive = sigmoid_derivative(neuron.sum_input);
+                        let delta = neuron.error * derive * prev_layer.get_value(&link.source_id);
+                        link.weight += delta * learning_rate;                        
+                    }
                 }                
             }
+        }
+        //error updates
+        for prev_neuron in &mut prev_layer.neurons {
+            if prev_neuron.is_dummy() {
+                continue;
+            }
+
+            let mut error_sum = 0.0;
+            for neuron in &current_layer.neurons {
+                if neuron.is_dummy() {
+                    continue;
+                }
+                for link in &neuron.input_links {
+                    if link.source_id == prev_neuron.id {
+                        error_sum += link.weight * neuron.error;
+                    }
+                }
+            }
+            prev_neuron.error = error_sum * sigmoid_derivative(prev_neuron.sum_input);
         }
     }
 }
@@ -102,7 +140,6 @@ fn build_nn() -> Network {
     let m1 = Neuron::new_middle(
         "m1".to_string(),
         0.23,
-        3,
         [a_m1, b_m1, c_m1, Link::new_dummy()],
     );
 
@@ -112,7 +149,6 @@ fn build_nn() -> Network {
     let m2 = Neuron::new_middle(
         "m2".to_string(),
         0.24,
-        3,
         [a_m2, b_m2, c_m2, Link::new_dummy()],
     );
 
@@ -122,7 +158,6 @@ fn build_nn() -> Network {
     let m3 = Neuron::new_middle(
         "m3".to_string(),
         0.24,
-        3,
         [a_m3, b_m3, c_m3, Link::new_dummy()],
     );
 
@@ -132,7 +167,6 @@ fn build_nn() -> Network {
     let m4 = Neuron::new_middle(
         "m4".to_string(),
         0.24,
-        3,
         [a_m4, b_m4, c_m4, Link::new_dummy()],
     );
 
@@ -144,19 +178,19 @@ fn build_nn() -> Network {
     let m2_n1 = Link::new("m2".to_string(), 0.1);
     let m3_n1 = Link::new("m3".to_string(), 0.1);
     let m4_n1 = Link::new("m4".to_string(), 0.1);
-    let n1 = Neuron::new_middle("n1".to_string(), 0.23, 4, [m1_n1, m2_n1, m3_n1, m4_n1]);
+    let n1 = Neuron::new_middle("n1".to_string(), 0.23,  [m1_n1, m2_n1, m3_n1, m4_n1]);
 
     let m1_n2 = Link::new("m1".to_string(), 0.1);
     let m2_n2 = Link::new("m2".to_string(), 0.1);
     let m3_n2 = Link::new("m3".to_string(), 0.1);
     let m4_n2 = Link::new("m4".to_string(), 0.1);
-    let n2 = Neuron::new_middle("n2".to_string(), 0.23, 4, [m1_n2, m2_n2, m3_n2, m4_n2]);
+    let n2 = Neuron::new_middle("n2".to_string(), 0.23,  [m1_n2, m2_n2, m3_n2, m4_n2]);
 
     let m1_n3 = Link::new("m1".to_string(), 0.1);
     let m2_n3 = Link::new("m2".to_string(), 0.1);
     let m3_n3 = Link::new("m3".to_string(), 0.1);
     let m4_n3 = Link::new("m4".to_string(), 0.1);
-    let n3 = Neuron::new_middle("n3".to_string(), 0.23, 4, [m1_n3, m2_n3, m3_n3, m4_n3]);
+    let n3 = Neuron::new_middle("n3".to_string(), 0.23,  [m1_n3, m2_n3, m3_n3, m4_n3]);
 
     let layer_n = Layer {
         neurons: [n1, n2, n3, Neuron::new_dummy()],
@@ -168,7 +202,6 @@ fn build_nn() -> Network {
     let x1 = Neuron::new_middle(
         "x1".to_string(),
         0.23,
-        4,
         [n1_x1, n2_x1, n3_x1, Link::new_dummy()],
     );
 
@@ -178,7 +211,6 @@ fn build_nn() -> Network {
     let x2 = Neuron::new_middle(
         "x2".to_string(),
         0.23,
-        4,
         [n1_x2, n2_x2, n3_x2, Link::new_dummy()],
     );
 
