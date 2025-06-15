@@ -4,6 +4,7 @@ use crate::nn_objects::{Layer, Link, Neuron};
 use serde::Deserialize;
 use serde_json;
 use std::fs;
+use rand::thread_rng;
 
 #[derive(Deserialize, Debug)]
 struct TrainItem {
@@ -18,24 +19,40 @@ type Network = [Layer; LAYERS_COUNT];
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let train_file_content = fs::read_to_string("./train.json")?;
-    let train_items: Vec<TrainItem> = serde_json::from_str(&train_file_content)?;
+    let mut train_items: Vec<TrainItem> = serde_json::from_str(&train_file_content)?;
 
     let mut nn = build_nn();
 
-    for epoch in 0..100 {
-        for item in &train_items {
+    let mut learning_rate = 0.1;
+    for epoch in 0..10000 {
+        shuffle(&mut train_items);
+        
+        for item in & train_items {
             forward(&mut nn, &item);
-            backward(&mut nn, &item, 0.1);
+            backward(&mut nn, &item, learning_rate);
         }
-        let test_item = train_items.first().unwrap();
-        let x1_output = nn.last().unwrap().neurons[0].output;
-        let x2_output = nn.last().unwrap().neurons[1].output;
-        forward(&mut nn, test_item);
-        let error_x1 = loss(test_item.x1, x1_output);
-        let error_x2 = loss(test_item.x2, x2_output);
-        println!("epoch {epoch}: x1 error =  {error_x1}, x2 error = {error_x2}");
-    }
 
+        let mut total_loss_x1 = 0.0;
+        let mut total_loss_x2 = 0.0;
+
+        for item in &train_items {
+            forward(&mut nn, item);
+            let x1_out = nn.last().unwrap().neurons[0].output;
+            let x2_out = nn.last().unwrap().neurons[1].output;
+            total_loss_x1 += loss(item.x1, x1_out);
+            total_loss_x2 += loss(item.x2, x2_out);
+        }
+
+        let avg_loss_x1 = total_loss_x1 / train_items.len() as f32;
+        let avg_loss_x2 = total_loss_x2 / train_items.len() as f32;        
+        
+        println!("epoch {epoch}: avg x1 error = {avg_loss_x1}, avg x2 error = {avg_loss_x2}");
+        
+        if learning_rate > 0.01{
+            learning_rate /= 2.0;
+        }
+    }
+    
 
     Ok(())
 }
@@ -49,6 +66,13 @@ fn sigmoid_derivative(x: f32) -> f32 {
 fn loss(target: f32, value: f32) -> f32 {
     (target - value).powi(2)
 }
+
+fn shuffle<T>(data: &mut [T]) {
+    use rand::seq::SliceRandom;
+    let mut rng = rand::rng();
+    data.shuffle(&mut rng);
+}
+
 fn forward(nn: &mut Network, train_item: &TrainItem) {
     nn[0].neurons[0].output = train_item.a;
     nn[0].neurons[1].output = train_item.b;
