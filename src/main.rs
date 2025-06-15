@@ -1,6 +1,7 @@
 mod nn_objects;
 mod nn_build;
 mod train_data;
+mod activation_functions;
 
 use crate::nn_objects::Network;
 use crate::nn_build::build_nn;
@@ -44,16 +45,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    println!("{:?}\n\n", &nn);
     Ok(())
 }
-fn sigmoid(x: f32) -> f32 {
-    1.0 / (1.0 + (-x).exp())
-}
-fn sigmoid_derivative(x: f32) -> f32 {
-    let s = sigmoid(x);
-    s * (1.0 - s)
-}
+
 fn loss(target: f32, value: f32) -> f32 {
     (target - value).powi(2)
 }
@@ -81,7 +75,7 @@ fn forward(nn: &mut Network, train_item: &TrainItem) {
                     })
                     .fold(0.0, |acc, e| acc + e);
                 neuron.sum_input = sum;
-                neuron.output = sigmoid(sum); 
+                neuron.output = activation_functions::apply(&neuron.function_name, sum); 
             }
         }
     }
@@ -92,9 +86,9 @@ fn backward(nn: &mut Network, train_item: &TrainItem, learning_rate: f32) {
     let output_neuron_x2 = &nn.layers[nn.layers_count - 1].neurons[1];
     
     let e_x1 = (train_item.x1 - output_neuron_x1.output)
-        * sigmoid_derivative(output_neuron_x1.sum_input);
+        * activation_functions::derivative(&output_neuron_x1.function_name, output_neuron_x1.sum_input);
     let e_x2 = (train_item.x2 - output_neuron_x2.output)
-        * sigmoid_derivative(output_neuron_x2.sum_input);
+        * activation_functions::derivative(&output_neuron_x2.function_name, output_neuron_x2.sum_input);
 
     nn.layers[nn.layers_count - 1].neurons[0].error = e_x1;
     nn.layers[nn.layers_count - 1].neurons[1].error = e_x2;
@@ -108,7 +102,7 @@ fn backward(nn: &mut Network, train_item: &TrainItem, learning_rate: f32) {
             if !neuron.is_dummy() {
                 for link in neuron.input_links.iter_mut() {
                     if !link.is_dummy() {
-                        let derive = sigmoid_derivative(neuron.sum_input);
+                        let derive = activation_functions::derivative(&neuron.function_name, neuron.sum_input);
                         let delta = neuron.error * derive * prev_layer.get_value(&link.source_id);
                         link.weight += delta * learning_rate;                        
                     }
@@ -132,7 +126,7 @@ fn backward(nn: &mut Network, train_item: &TrainItem, learning_rate: f32) {
                     }
                 }
             }
-            prev_neuron.error = error_sum * sigmoid_derivative(prev_neuron.sum_input);
+            prev_neuron.error = error_sum * activation_functions::derivative(&prev_neuron.function_name, prev_neuron.sum_input);
         }
     }
 }

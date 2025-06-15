@@ -31,8 +31,8 @@ impl Link {
 pub enum ActivationFunction {
     None,
     Sigmoid,
-    Quadratic,
-    Square
+    Square,
+    Sqrt
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
