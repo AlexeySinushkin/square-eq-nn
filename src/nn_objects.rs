@@ -1,6 +1,9 @@
+use serde::Deserialize;
+
 pub const MAX_LINKS: usize = 4;
 pub const MAX_NEURONS_PER_LAYER: usize = 4;
 
+#[derive(Debug)]
 pub struct Link {
     pub source_id: String,
     pub weight: f32
@@ -22,6 +25,8 @@ impl Link {
         self.source_id.is_empty()
     }
 }
+
+#[derive(Debug)]
 pub struct Neuron {
     pub id: String,
     pub output: f32,
@@ -63,6 +68,7 @@ impl Neuron {
     }
 }
 
+#[derive(Debug)]
 pub struct Layer {
     pub neurons: [Neuron; MAX_NEURONS_PER_LAYER],
 }
