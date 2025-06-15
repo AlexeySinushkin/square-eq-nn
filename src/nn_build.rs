@@ -1,5 +1,5 @@
 use crate::Network;
-use crate::nn_objects::{Layer, Link, Neuron};
+use crate::nn_objects::{ActivationFunction, Layer, Link, Neuron};
 
 pub fn build_nn() -> Network {
     let a = Neuron::new_input("a".to_string());
@@ -15,6 +15,7 @@ pub fn build_nn() -> Network {
     let m1 = Neuron::new_middle(
         "m1".to_string(),
         0.23,
+        ActivationFunction::Sigmoid,
         [a_m1, b_m1, c_m1, Link::new_dummy()],
     );
 
@@ -24,6 +25,7 @@ pub fn build_nn() -> Network {
     let m2 = Neuron::new_middle(
         "m2".to_string(),
         0.24,
+        ActivationFunction::Sigmoid,
         [a_m2, b_m2, c_m2, Link::new_dummy()],
     );
 
@@ -33,6 +35,7 @@ pub fn build_nn() -> Network {
     let m3 = Neuron::new_middle(
         "m3".to_string(),
         0.24,
+        ActivationFunction::Sigmoid,
         [a_m3, b_m3, c_m3, Link::new_dummy()],
     );
 
@@ -42,6 +45,7 @@ pub fn build_nn() -> Network {
     let m4 = Neuron::new_middle(
         "m4".to_string(),
         0.24,
+        ActivationFunction::Sigmoid,
         [a_m4, b_m4, c_m4, Link::new_dummy()],
     );
 
@@ -53,19 +57,34 @@ pub fn build_nn() -> Network {
     let m2_n1 = Link::new("m2".to_string(), 0.1);
     let m3_n1 = Link::new("m3".to_string(), 0.1);
     let m4_n1 = Link::new("m4".to_string(), 0.1);
-    let n1 = Neuron::new_middle("n1".to_string(), 0.23,  [m1_n1, m2_n1, m3_n1, m4_n1]);
+    let n1 = Neuron::new_middle(
+        "n1".to_string(),
+        0.23,
+        ActivationFunction::Sigmoid,
+        [m1_n1, m2_n1, m3_n1, m4_n1],
+    );
 
     let m1_n2 = Link::new("m1".to_string(), 0.1);
     let m2_n2 = Link::new("m2".to_string(), 0.1);
     let m3_n2 = Link::new("m3".to_string(), 0.1);
     let m4_n2 = Link::new("m4".to_string(), 0.1);
-    let n2 = Neuron::new_middle("n2".to_string(), 0.23,  [m1_n2, m2_n2, m3_n2, m4_n2]);
+    let n2 = Neuron::new_middle(
+        "n2".to_string(),
+        0.23,
+        ActivationFunction::Sigmoid,
+        [m1_n2, m2_n2, m3_n2, m4_n2],
+    );
 
     let m1_n3 = Link::new("m1".to_string(), 0.1);
     let m2_n3 = Link::new("m2".to_string(), 0.1);
     let m3_n3 = Link::new("m3".to_string(), 0.1);
     let m4_n3 = Link::new("m4".to_string(), 0.1);
-    let n3 = Neuron::new_middle("n3".to_string(), 0.23,  [m1_n3, m2_n3, m3_n3, m4_n3]);
+    let n3 = Neuron::new_middle(
+        "n3".to_string(),
+        0.23,
+        ActivationFunction::Sigmoid,
+        [m1_n3, m2_n3, m3_n3, m4_n3],
+    );
 
     let layer_n = Layer {
         neurons: [n1, n2, n3, Neuron::new_dummy()],
@@ -77,6 +96,7 @@ pub fn build_nn() -> Network {
     let x1 = Neuron::new_middle(
         "x1".to_string(),
         0.23,
+        ActivationFunction::Sigmoid,
         [n1_x1, n2_x1, n3_x1, Link::new_dummy()],
     );
 
@@ -86,6 +106,7 @@ pub fn build_nn() -> Network {
     let x2 = Neuron::new_middle(
         "x2".to_string(),
         0.23,
+        ActivationFunction::Sigmoid,
         [n1_x2, n2_x2, n3_x2, Link::new_dummy()],
     );
 
@@ -93,5 +114,22 @@ pub fn build_nn() -> Network {
         neurons: [x1, x2, Neuron::new_dummy(), Neuron::new_dummy()],
     };
 
-    [input_layer, layer_m, layer_n, output_layer]
+    Network {
+        layers: [input_layer, layer_m, layer_n, output_layer, Layer::new_dummy(), Layer::new_dummy(), Layer::new_dummy()],
+        layers_count: 4,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::nn_build::build_nn;
+    use std::fs;
+
+    #[test]
+    #[ignore]
+    fn store_nn() {
+        let nn = build_nn();
+        let json = serde_json::to_string_pretty(&nn).unwrap();
+        fs::write("nn1.json", json).unwrap();
+    }
 }

@@ -2,14 +2,12 @@ mod nn_objects;
 mod nn_build;
 mod train_data;
 
-use crate::nn_objects::{Layer};
-use serde::Deserialize;
-use serde_json;
+use crate::nn_objects::Network;
 use crate::nn_build::build_nn;
 use crate::train_data::{load_train, shuffle, TrainItem};
 
-const LAYERS_COUNT: usize = 4;
-type Network = [Layer; LAYERS_COUNT];
+
+
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     
@@ -30,8 +28,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         for item in &train_items {
             forward(&mut nn, item);
-            let x1_out = nn.last().unwrap().neurons[0].output;
-            let x2_out = nn.last().unwrap().neurons[1].output;
+            let x1_out = nn.last().neurons[0].output;
+            let x2_out = nn.last().neurons[1].output;
             total_loss_x1 += loss(item.x1, x1_out);
             total_loss_x2 += loss(item.x2, x2_out);
         }
@@ -63,12 +61,12 @@ fn loss(target: f32, value: f32) -> f32 {
 
 
 fn forward(nn: &mut Network, train_item: &TrainItem) {
-    nn[0].neurons[0].output = train_item.a;
-    nn[0].neurons[1].output = train_item.b;
-    nn[0].neurons[3].output = train_item.c;
+    nn.layers[0].neurons[0].output = train_item.a;
+    nn.layers[0].neurons[1].output = train_item.b;
+    nn.layers[0].neurons[3].output = train_item.c;
 
-    for layer_index in 1..LAYERS_COUNT {
-        let (prev, current) = nn.split_at_mut(layer_index);
+    for layer_index in 1..nn.layers_count {
+        let (prev, current) = nn.layers.split_at_mut(layer_index);
         let prev_layer = &prev[layer_index - 1];
         let current_layer = &mut current[0];
 
@@ -90,19 +88,19 @@ fn forward(nn: &mut Network, train_item: &TrainItem) {
 }
 
 fn backward(nn: &mut Network, train_item: &TrainItem, learning_rate: f32) {
-    let output_neuron_x1 = &nn[LAYERS_COUNT - 1].neurons[0];
-    let output_neuron_x2 = &nn[LAYERS_COUNT - 1].neurons[1];
+    let output_neuron_x1 = &nn.layers[nn.layers_count - 1].neurons[0];
+    let output_neuron_x2 = &nn.layers[nn.layers_count - 1].neurons[1];
     
     let e_x1 = (train_item.x1 - output_neuron_x1.output)
         * sigmoid_derivative(output_neuron_x1.sum_input);
     let e_x2 = (train_item.x2 - output_neuron_x2.output)
         * sigmoid_derivative(output_neuron_x2.sum_input);
 
-    nn[LAYERS_COUNT - 1].neurons[0].error = e_x1;
-    nn[LAYERS_COUNT - 1].neurons[1].error = e_x2;
+    nn.layers[nn.layers_count - 1].neurons[0].error = e_x1;
+    nn.layers[nn.layers_count - 1].neurons[1].error = e_x2;
       
-    for layer_index in (1..LAYERS_COUNT).rev() {
-        let (prev, current) = nn.split_at_mut(layer_index);
+    for layer_index in (1..nn.layers_count).rev() {
+        let (prev, current) = nn.layers.split_at_mut(layer_index);
         let prev_layer = &mut prev[layer_index - 1];
         let current_layer = &mut current[0];
         //weight updates

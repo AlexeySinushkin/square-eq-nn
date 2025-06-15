@@ -1,9 +1,10 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 pub const MAX_LINKS: usize = 4;
 pub const MAX_NEURONS_PER_LAYER: usize = 4;
+pub const MAX_LAYERS_COUNT: usize = 7;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Link {
     pub source_id: String,
     pub weight: f32
@@ -26,12 +27,21 @@ impl Link {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ActivationFunction {
+    None,
+    Sigmoid,
+    Quadratic,
+    Square
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Neuron {
     pub id: String,
     pub output: f32,
     pub sum_input: f32,
     pub error: f32,
+    pub function_name: ActivationFunction,
     pub input_links: [Link; MAX_LINKS],
 }
 
@@ -42,15 +52,17 @@ impl Neuron {
             output: 0.0,
             sum_input: 0.0,
             error: 1.0,
+            function_name: ActivationFunction::None,
             input_links: std::array::from_fn(|_| Link::new_dummy()),
         }
     }
-    pub fn new_middle(id: String, value: f32, link: [Link; MAX_LINKS]) -> Self {
+    pub fn new_middle(id: String, value: f32, function: ActivationFunction, link: [Link; MAX_LINKS]) -> Self {
         Neuron {
             id,
             output: value,
             sum_input: 0.0,
             error: 1.0,
+            function_name: function,
             input_links: link,
         }
     }
@@ -60,6 +72,7 @@ impl Neuron {
             output: 0.0,
             sum_input: 0.0,
             error: 1.0,
+            function_name: ActivationFunction::None,
             input_links: std::array::from_fn(|_| Link::new_dummy()),
         }
     }
@@ -68,14 +81,31 @@ impl Neuron {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Layer {
     pub neurons: [Neuron; MAX_NEURONS_PER_LAYER],
 }
 
 impl Layer {
+    pub fn new_dummy() -> Self {
+        Layer {
+            neurons: std::array::from_fn(|_| Neuron::new_dummy()),
+        }
+    }
     pub fn get_value(&self, neuron_id: &String) -> f32 {
         self.neurons.iter()
             .find(|n| n.id.eq(neuron_id)).unwrap().output
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Network {
+    pub layers: [Layer; MAX_LAYERS_COUNT],
+    pub layers_count: usize,
+}
+
+impl Network {
+    pub fn last(&self) -> &Layer {
+        &self.layers[self.layers_count-1]
     }
 }
