@@ -2,6 +2,7 @@ mod nn_objects;
 mod nn_build;
 mod train_data;
 mod activation_functions;
+mod draw;
 
 use crate::nn_objects::Network;
 use crate::nn_build::build_nn;
