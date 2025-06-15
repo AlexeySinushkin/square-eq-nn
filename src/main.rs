@@ -35,6 +35,9 @@ fn sigmoid_derivative(x: f32) -> f32 {
     let s = sigmoid(x);
     s * (1.0 - s)
 }
+fn loss(target: f32, value: f32) -> f32 {
+    (target - value).powi(2)
+}
 fn forward(nn: &mut Network, train_item: &TrainItem) {
     nn[0].neurons[0].output = train_item.a;
     nn[0].neurons[1].output = train_item.b;
@@ -57,6 +60,29 @@ fn forward(nn: &mut Network, train_item: &TrainItem) {
                     .fold(0.0, |acc, e| acc + e);
                 neuron.sum_input = sum;
                 neuron.output = sigmoid(sum); 
+            }
+        }
+    }
+}
+
+fn backward(nn: &mut Network, learning_rate: f32, train_item: &TrainItem) {
+    let e_x1 = loss(nn[LAYERS_COUNT - 1].neurons[0].output, train_item.x1);
+    let e_x2 = loss(nn[LAYERS_COUNT - 1].neurons[1].output, train_item.x2);
+    nn[LAYERS_COUNT - 1].neurons[0].error = e_x1;
+    nn[LAYERS_COUNT - 1].neurons[1].error = e_x2;
+    
+    for layer_index in LAYERS_COUNT-1..0 {
+        let (prev, current) = nn.split_at_mut(layer_index);
+        let prev_layer = &prev[layer_index - 1];
+        let current_layer = &mut current[0];
+
+        for neuron in &mut current_layer.neurons {
+            if !neuron.is_dummy() {
+                for link in neuron.input_links.iter_mut() {
+                    let derive = sigmoid_derivative(neuron.sum_input);
+                    let delta = neuron.error * derive * prev_layer.get_value(&link.source_id);
+                    link.weight += delta * learning_rate;
+                }                
             }
         }
     }
