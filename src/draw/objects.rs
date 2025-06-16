@@ -8,6 +8,8 @@ pub const COLOUR_CIRCLE: u32 = 0xce7b47;
 pub const COLOUR_LINK: u32 = 0xb7babf;
 pub const COLOUR_ERROR: u32 = 0xc37ab6;
 
+
+
 pub struct Circle {
     pub id: String,
     pub x: usize,

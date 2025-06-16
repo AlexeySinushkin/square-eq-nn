@@ -7,6 +7,9 @@ use minifb::{Key, Window, WindowOptions};
 use std::sync::mpsc;
 use std::thread::sleep;
 use std::time::Duration;
+use rusttype::{point, Font, Scale};
+
+const FONT_DATA : &[u8; 1_036_584] = include_bytes!("assets/arial.ttf");
 
 pub fn init(
     buffer_background: Vec<u32>,
@@ -75,6 +78,7 @@ pub fn build_backgroud(view: &PositioningView) -> Vec<u32> {
         buffer.extend_from_slice(row);
     }
 
+    
     for circle in view.circles.iter() {
         draw_circle(&mut buffer, circle);
     }
@@ -118,6 +122,72 @@ fn draw_circle(buffer: &mut [u32], circle: &Circle) {
                     buffer[py as usize * WINDOW_WIDTH + px as usize] = COLOUR_BACKGROUND;
                 }
             }
+        }
+    }
+
+    draw_text(
+        buffer,
+        circle.x - 10,
+        circle.y - 8,
+        &circle.id,
+        FONT_DATA,
+        COLOUR_LINK
+    );
+}
+
+fn draw_text(
+    buffer: &mut [u32],
+    x: usize,
+    y: usize,
+    text: &str,
+    font_data: &[u8],
+    color: u32,
+) {
+    let font = Font::try_from_bytes(font_data).expect("Failed to load font");
+
+    let scale = Scale::uniform(32.0); // Font size in pixels
+
+    let v_metrics = font.v_metrics(scale);
+    let start = point(x as f32, y as f32 + v_metrics.ascent);
+
+    let glyphs: Vec<_> = font.layout(text, scale, start).collect();
+    // Calculate width and height of text
+    let width: i32 = glyphs
+        .iter()
+        .filter_map(|g| g.pixel_bounding_box())
+        .map(|bb| bb.width())
+        .sum::<i32>();
+
+    let height: i32 = glyphs
+        .iter()
+        .filter_map(|g| g.pixel_bounding_box())
+        .map(|bb| bb.height())
+        .max()
+        .unwrap_or(0);
+
+    // Recalculate position based on center of circle
+    let origin = point(
+        x as f32 - (width as f32 / 2.0),
+        y as f32 + (height as f32 / 2.0),
+    );
+    font.layout(text, scale, origin);
+    
+    for glyph in glyphs {
+        if let Some(bb) = glyph.pixel_bounding_box() {
+            glyph.draw(|gx, gy, v| {
+                let px = gx as i32 + bb.min.x;
+                let py = gy as i32 + bb.min.y;
+
+                if px >= 0 && py >= 0 && (px as usize) < WINDOW_WIDTH && (py as usize) < WINDOW_HEIGHT {
+                    let alpha = (v * 255.0) as u8;
+                    let r = ((color >> 16) & 0xFF) as u8;
+                    let g = ((color >> 8) & 0xFF) as u8;
+                    let b = (color & 0xFF) as u8;
+
+                    let blended = ((alpha as u32) << 24) | ((r as u32) << 16) | ((g as u32) << 8) | (b as u32);
+                    buffer[py as usize * WINDOW_WIDTH + px as usize] = blended;
+                }
+            });
         }
     }
 }
