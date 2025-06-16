@@ -10,22 +10,19 @@ pub const COLOUR_ERROR: u32 = 0xc37ab6;
 
 pub struct Circle {
     pub id: String,
-    pub x: f32,
-    pub y: f32,
-    pub radius: f32,
+    pub x: usize,
+    pub y: usize,
+    pub radius: usize,
     pub color: u32, // RGBA
 }
 pub struct Link {
     pub src_id: String,
     pub dst_id: String,
-    pub x: f32,
-    pub y: f32,
-}
-pub struct Layer {    
-    pub circles: Vec<Circle>,
+    pub x: usize,
+    pub y: usize,
 }
 pub struct PositioningView {
-    pub layers: Vec<Layer>,
+    pub circles: Vec<Circle>,
     pub links: Vec<Link>
 }
 
