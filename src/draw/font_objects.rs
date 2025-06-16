@@ -1,5 +1,5 @@
 use macroquad::color::Color;
-use macroquad::prelude::{load_ttf_font, TextParams};
+use macroquad::prelude::TextParams;
 use macroquad::text::Font;
 use crate::draw::objects::{COLOUR_CIRCLE, COLOUR_LINK};
 

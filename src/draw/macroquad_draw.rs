@@ -1,12 +1,8 @@
 use crate::draw::font_objects::TextStyles;
-use crate::draw::objects::{
-    COLOUR_BACKGROUND, COLOUR_CIRCLE, COLOUR_LINK, Model, PositioningView, WINDOW_HEIGHT,
-    WINDOW_WIDTH,
-};
+use crate::draw::objects::{COLOUR_BACKGROUND, COLOUR_CIRCLE, COLOUR_LINK, Model, PositioningView, WINDOW_HEIGHT, WINDOW_WIDTH, Arrow, Point, NCircle};
 use macroquad::prelude::*;
-use std::sync::mpsc::{self, Receiver};
+use std::sync::mpsc::{Receiver};
 use std::thread;
-use std::time::Duration;
 
 // Function that runs macroquad main loop
 fn spawn_ui_thread(view: PositioningView, rx: Receiver<Model>) -> thread::JoinHandle<()> {
@@ -20,17 +16,18 @@ fn spawn_ui_thread(view: PositioningView, rx: Receiver<Model>) -> thread::JoinHa
                 ..Default::default()
             },
             async move {
-                let mut message = "Hello, World!".to_string();
+                let message = "Hello, World!".to_string();
                 let font = load_ttf_font("assets/arial.ttf")
                     .await
                     .expect("Failed to load Arial font");
                 let text_styles = TextStyles { font };
                 loop {
+                    draw_background(&view, &text_styles);               
+                    
                     // Try to receive updated text
                     if let Ok(new_msg) = rx.try_recv() {
                         //message = new_msg;
-                    }
-                    draw_background(&view, &text_styles);
+                    }                    
 
                     //draw_text_ex(&message, 30.0, 100.0, text_styles.neuron_header());
 
@@ -41,11 +38,11 @@ fn spawn_ui_thread(view: PositioningView, rx: Receiver<Model>) -> thread::JoinHa
     })
 }
 
-fn draw_text_center(text: &str, x: usize, y: usize, text_style: &TextStyles) {
+fn draw_text_center(text: &str, point: &Point, text_style: &TextStyles) {
     let text_params = text_style.neuron_header();
     let dims = measure_text(text, text_params.font, text_params.font_size, 1.0);
-    let text_x = x as f32 - dims.width / 2.0;
-    let text_y = y as f32 + dims.offset_y / 2.0; // Optional: vertically center
+    let text_x = point.x as f32 - dims.width / 2.0;
+    let text_y = point.y as f32 + dims.offset_y / 2.0; // Optional: vertically center
 
     draw_text_ex(text, text_x, text_y, text_params);
 }
@@ -53,26 +50,38 @@ fn draw_text_center(text: &str, x: usize, y: usize, text_style: &TextStyles) {
 fn draw_background(view: &PositioningView, text_style: &TextStyles) {
     clear_background(Color::from_hex(COLOUR_BACKGROUND));
     for circle in view.circles.iter() {
-        draw_circle(
-            circle.x as f32,
-            circle.y as f32,
-            circle.radius as f32,
-            Color::from_hex(COLOUR_CIRCLE),
-        );
-
-        draw_circle(
-            circle.x as f32,
-            circle.y as f32,
-            (circle.radius - 2) as f32,
-            Color::from_hex(COLOUR_BACKGROUND),
-        );
-        draw_text_center(
-            &circle.id,
-            circle.x,
-            circle.y - circle.radius / 2,
-            text_style,
-        )
+        draw_neuron_circle(circle, text_style);
     }
+    for arrow in view.arrows.iter() {
+        draw_arrow(arrow);    
+    }    
+}
+fn draw_neuron_circle(circle: &NCircle, text_style: &TextStyles) {
+    draw_circle(
+        circle.center.x as f32,
+        circle.center.y as f32,
+        circle.radius as f32,
+        Color::from_hex(COLOUR_CIRCLE),
+    );
+
+    draw_circle(
+        circle.center.x as f32,
+        circle.center.y as f32,
+        (circle.radius - 2.0) as f32,
+        Color::from_hex(COLOUR_BACKGROUND),
+    );
+    draw_text_center(
+        &circle.id,
+        &circle.caption,
+        text_style,
+    )
+}
+
+fn draw_arrow(arrow: &Arrow) {
+    let color: Color = Color::from_hex(COLOUR_LINK);
+    draw_line(arrow.from.x, arrow.from.y, arrow.to.x, arrow.to.y, 2.0, color);
+    draw_line(arrow.from_1.x, arrow.from_1.y, arrow.to.x, arrow.to.y, 2.0, color);
+    draw_line(arrow.from_2.x, arrow.from_2.y, arrow.to.x, arrow.to.y, 2.0, color);
 }
 
 #[cfg(test)]
