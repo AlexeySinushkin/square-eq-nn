@@ -44,15 +44,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         nn.layers[0].neurons[2].output = b;
         forward(&mut nn);
         
-        let y_neuron = &mut nn.layers[nn.layers_count-1].neurons[0];
-        let error = loss(y, y_neuron.output);
-        y_neuron.error = error;
+        let y_neuron = &mut nn.layers[nn.layers_count-1].neurons[0];   
+        let error = mse(y, y_neuron.output);
+        y_neuron.error = mse_derivative(y, y_neuron.output);
         
         backward(&mut nn, learning_rate);
         
         adapter.send_timed(&nn);        
-        if learning_rate > 0.01{
-            learning_rate /= 2.0;
+        if learning_rate > 0.001{
+            learning_rate *= 0.999;
         }
         if error < 0.1 {
             break;
@@ -63,8 +63,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn loss(target: f32, value: f32) -> f32 {
-    target - value
+fn mse(target: f32, value: f32) -> f32 {
+    let diff = target - value;
+    diff * diff
+}
+fn mse_derivative(target: f32, value: f32) -> f32 {
+    let diff = target - value;
+    2.0 * diff
 }
 
 

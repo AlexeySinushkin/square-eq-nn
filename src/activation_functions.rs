@@ -7,6 +7,7 @@ pub fn apply(function: &ActivationFunction, x: f32) -> f32 {
         Square => square(x),
         Sqrt => sqrt(x),
         Linear => linear(x),
+        Relu => relu(x),
         _ => x,
     }
 }
@@ -17,6 +18,7 @@ pub fn derivative(function: &ActivationFunction, x: f32) -> f32 {
         Square => square_derivative(x),
         Sqrt => sqrt_derivative(x),
         Linear => linear_derivative(x),
+        Relu => relu_derivative(x),
         _ => x,
     }
 }
@@ -55,4 +57,12 @@ fn linear(x: f32) -> f32 {
 
 fn linear_derivative(x: f32) -> f32 {
     1.0
+}
+
+fn relu(x: f32) -> f32 {
+    if x > 0.0 { x } else { 0.0 }
+}
+
+fn relu_derivative(x: f32) -> f32 {
+    if x > 0.0 { 1.0 } else { 0.0 }
 }

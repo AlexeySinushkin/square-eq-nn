@@ -33,7 +33,8 @@ pub enum ActivationFunction {
     Sigmoid,
     Square,
     Sqrt,
-    Linear
+    Linear,
+    Relu
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
