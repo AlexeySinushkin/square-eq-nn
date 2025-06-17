@@ -1,5 +1,5 @@
 pub mod objects;
-mod macroquad_draw;
-mod view;
+pub mod macroquad_draw;
+pub mod view;
 mod font_objects;
 

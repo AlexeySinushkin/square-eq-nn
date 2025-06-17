@@ -1,7 +1,5 @@
 pub const WINDOW_WIDTH: usize = 1366;
 pub const WINDOW_HEIGHT: usize = 768;
-pub const CIRCLE_RADIUS: usize = 140;
-
 pub const COLOUR_BACKGROUND: u32 = 0x1e1f22;
 pub const COLOUR_CIRCLE: u32 = 0xce7b47;
 pub const COLOUR_LINK: u32 = 0xb7babf;

@@ -3,7 +3,13 @@ mod nn_build;
 mod train_data;
 mod activation_functions;
 mod draw;
+mod draw_adapter;
 
+use std::sync::mpsc;
+use crate::draw::macroquad_draw::spawn_ui_thread;
+use crate::draw::objects::Model;
+use crate::draw::view::build_view;
+use crate::draw_adapter::DrawAdapter;
 use crate::nn_objects::Network;
 use crate::nn_build::build_nn;
 use crate::train_data::{load_train, shuffle, TrainItem};
@@ -15,6 +21,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     
     let mut train_items: Vec<TrainItem> = load_train()?;
     let mut nn = build_nn();
+    
+    let (tx, rx) = mpsc::channel::<Model>();
+    let view = build_view(&nn);
+    let join_handle = spawn_ui_thread(view, rx);
+    let mut adapter = DrawAdapter::new(tx);
+
 
     let mut learning_rate = 0.1;
     for epoch in 0..10000 {
@@ -40,12 +52,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let avg_loss_x2 = total_loss_x2 / train_items.len() as f32;        
         
         println!("epoch {epoch}: avg x1 error = {avg_loss_x1}, avg x2 error = {avg_loss_x2}");
+        adapter.send_timed(&nn);
         
         if learning_rate > 0.01{
             learning_rate /= 2.0;
         }
     }
 
+    join_handle.join().unwrap();
     Ok(())
 }
 

@@ -8,18 +8,17 @@ use std::sync::mpsc::Receiver;
 use std::thread;
 
 // Function that runs macroquad main loop
-fn spawn_ui_thread(view: PositioningView, rx: Receiver<Model>) -> thread::JoinHandle<()> {
+pub(crate) fn spawn_ui_thread(view: PositioningView, rx: Receiver<Model>) -> thread::JoinHandle<()> {
     thread::spawn(move || {
         // You must call macroquad via this attribute in a standalone thread:
         macroquad::Window::from_config(
             Conf {
-                window_title: "Macroquad Thread Example".into(),
+                window_title: "Neural Network State".into(),
                 window_width: WINDOW_WIDTH as i32,
                 window_height: WINDOW_HEIGHT as i32,
                 ..Default::default()
             },
             async move {
-                let message = "Hello, World!".to_string();
                 let font = load_ttf_font("assets/arial.ttf")
                     .await
                     .expect("Failed to load Arial font");
