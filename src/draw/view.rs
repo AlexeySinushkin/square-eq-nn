@@ -26,7 +26,9 @@ pub fn build_view(nn: &Network) -> PositioningView {
         x += layer_width;
 
         for neuron in layer.neurons.iter().filter(|n| !n.is_dummy()) {
+            println!("{:?}", neuron);
             for link in neuron.input_links.iter().filter(|l| !l.is_dummy()) {
+                println!("{:?}", link);
                 let circle_from = circles.iter().find(|c| c.id == link.source_id).unwrap();
                 let circle_to = circles.iter().find(|c| c.id == neuron.id).unwrap();
                 let id = Arrow::generate_id(&link.source_id, &neuron.id);
