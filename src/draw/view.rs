@@ -1,6 +1,4 @@
-use crate::draw::objects::{
-    Arrow, NCircle, PositioningView, WINDOW_HEIGHT, WINDOW_WIDTH,
-};
+use crate::draw::objects::{Arrow, NCircle, PositioningView, WINDOW_HEIGHT, WINDOW_WIDTH};
 use crate::nn_objects::Network;
 
 pub fn build_view(nn: &Network) -> PositioningView {
@@ -31,10 +29,66 @@ pub fn build_view(nn: &Network) -> PositioningView {
             for link in neuron.input_links.iter().filter(|l| !l.is_dummy()) {
                 let circle_from = circles.iter().find(|c| c.id == link.source_id).unwrap();
                 let circle_to = circles.iter().find(|c| c.id == neuron.id).unwrap();
-                let id = format!("{}->{}", link.source_id, neuron.id);
+                let id = Arrow::generate_id(&link.source_id, &neuron.id);
                 arrows.push(Arrow::new(id, circle_from, circle_to))
             }
         }
     }
+    separate_arrow_midpoints(&mut arrows);
     PositioningView { circles, arrows }
+}
+
+
+fn separate_arrow_midpoints(mut arrows: &mut Vec<Arrow>) {
+    let mut changed = true;
+    let tolerance = 12.0;
+
+    while changed {
+        changed = false;
+
+        for i in 0..arrows.len() {
+            let mut moved = false;
+            let (from, to) = {
+                let arrow = &arrows[i];
+                (arrow.from.clone(), arrow.to.clone())
+            };
+
+            let dir_x = to.x - from.x;
+            let dir_y = to.y - from.y;
+            let len = (dir_x * dir_x + dir_y * dir_y).sqrt();
+
+            if len == 0.0 {
+                continue;
+            }
+
+            // perpendicular direction
+            let perp_x = -dir_y / len;
+            let perp_y = dir_x / len;
+
+            let original_middle = arrows[i].middle.clone();
+
+            for j in 0..arrows.len() {
+                if i == j {
+                    continue;
+                }
+
+                let other_middle = arrows[j].middle.clone();
+                let dx = other_middle.x - original_middle.x;
+                let dy = other_middle.y - original_middle.y;
+
+                if dx * dx + dy * dy <= tolerance * tolerance {
+                    // Collision! Push along perpendicular vector
+                    let push = 8.0;
+                    arrows[i].middle.x += perp_x * push;
+                    arrows[i].middle.y += perp_y * push;
+                    moved = true;
+                    break;
+                }
+            }
+
+            if moved {
+                changed = true;
+            }
+        }
+    }
 }

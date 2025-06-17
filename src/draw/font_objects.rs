@@ -1,7 +1,7 @@
 use macroquad::color::Color;
 use macroquad::prelude::TextParams;
 use macroquad::text::Font;
-use crate::draw::objects::{COLOUR_CIRCLE, COLOUR_LINK};
+use crate::draw::objects::{COLOUR_CIRCLE, COLOUR_ERROR, COLOUR_LINK};
 
 pub struct TextStyles {
     pub font: Font,
@@ -21,7 +21,7 @@ impl TextStyles {
         TextParams {
             font: Some(&self.font),
             font_size: 16,
-            color: Color::from_hex(COLOUR_CIRCLE),
+            color: Color::from_hex(COLOUR_ERROR),
             ..Default::default()
         }
     }

@@ -1,7 +1,10 @@
 use crate::draw::font_objects::TextStyles;
-use crate::draw::objects::{COLOUR_BACKGROUND, COLOUR_CIRCLE, COLOUR_LINK, Model, PositioningView, WINDOW_HEIGHT, WINDOW_WIDTH, Arrow, Point, NCircle};
+use crate::draw::objects::{
+    Arrow, COLOUR_BACKGROUND, COLOUR_CIRCLE, COLOUR_LINK, Model, NCircle, Point, PositioningView,
+    WINDOW_HEIGHT, WINDOW_WIDTH,
+};
 use macroquad::prelude::*;
-use std::sync::mpsc::{Receiver};
+use std::sync::mpsc::Receiver;
 use std::thread;
 
 // Function that runs macroquad main loop
@@ -21,16 +24,17 @@ fn spawn_ui_thread(view: PositioningView, rx: Receiver<Model>) -> thread::JoinHa
                     .await
                     .expect("Failed to load Arial font");
                 let text_styles = TextStyles { font };
+                let mut model : Option<Model> = None;
                 loop {
-                    draw_background(&view, &text_styles);               
-                    
+                    draw_background(&view, &text_styles);
+
                     // Try to receive updated text
                     if let Ok(new_msg) = rx.try_recv() {
-                        //message = new_msg;
-                    }                    
-
-                    //draw_text_ex(&message, 30.0, 100.0, text_styles.neuron_header());
-
+                        model = Some(new_msg);
+                    }
+                    if let Some(model) = model.as_ref() {
+                        draw_values(&view, &model,  &text_styles);
+                    }
                     next_frame().await;
                 }
             },
@@ -38,12 +42,44 @@ fn spawn_ui_thread(view: PositioningView, rx: Receiver<Model>) -> thread::JoinHa
     })
 }
 
-fn draw_text_center(text: &str, point: &Point, text_style: &TextStyles) {
-    let text_params = text_style.neuron_header();
-    let dims = measure_text(text, text_params.font, text_params.font_size, 1.0);
-    let text_x = point.x as f32 - dims.width / 2.0;
-    let text_y = point.y as f32 + dims.offset_y / 2.0; // Optional: vertically center
+fn draw_values(view: &PositioningView, model: &Model, text_style: &TextStyles) {
+    for circle_value in model.neuron_values.iter() {
+        if let Some(circle) = view.circles.iter().find(|c| c.id == circle_value.id) {
+            let error = format!("{:.5}", circle_value.error);
+            draw_text_center(&error, &circle.center, text_style.neuron_error());
+            let output = format!("{:.2}", circle_value.value);
+            draw_text_center(&output, &circle.output, text_style.neuron_header())
+        }
+    }
+    for link_value in model.link_values.iter() {
+        if let Some(arrow) = view.arrows.iter().find(|c| c.id == link_value.id) {
+            let weight = format!("{:.5}", link_value.value);
+            draw_text_center(&weight, &arrow.middle, text_style.link_weight())
+        }
+    }
+}
 
+pub fn draw_text_center(text: &str, point: &Point, text_params: TextParams) {
+    // Measure the text size
+    let dims = measure_text(text, text_params.font, text_params.font_size, 1.0);
+    let text_width = dims.width;
+    let text_height = dims.height;
+
+    // Calculate top-left corner for background and text
+    let text_x = point.x - text_width / 2.0;
+    let text_y = point.y + dims.offset_y / 2.0;
+
+    // Draw background rectangle (with padding)
+    let padding = 2.0;
+    draw_rectangle(
+        text_x - padding,
+        text_y - text_height - padding,
+        text_width + 2.0 * padding,
+        text_height + 2.0 * padding,
+        Color::from_hex(COLOUR_BACKGROUND).with_alpha(0.5), 
+    );
+
+    // Draw the text over it
     draw_text_ex(text, text_x, text_y, text_params);
 }
 
@@ -53,8 +89,8 @@ fn draw_background(view: &PositioningView, text_style: &TextStyles) {
         draw_neuron_circle(circle, text_style);
     }
     for arrow in view.arrows.iter() {
-        draw_arrow(arrow);    
-    }    
+        draw_arrow(arrow);
+    }
 }
 fn draw_neuron_circle(circle: &NCircle, text_style: &TextStyles) {
     draw_circle(
@@ -70,36 +106,77 @@ fn draw_neuron_circle(circle: &NCircle, text_style: &TextStyles) {
         (circle.radius - 2.0) as f32,
         Color::from_hex(COLOUR_BACKGROUND),
     );
-    draw_text_center(
-        &circle.id,
-        &circle.caption,
-        text_style,
-    )
+    draw_text_center(&circle.id, &circle.caption, text_style.neuron_header());
 }
 
 fn draw_arrow(arrow: &Arrow) {
     let color: Color = Color::from_hex(COLOUR_LINK);
-    draw_line(arrow.from.x, arrow.from.y, arrow.to.x, arrow.to.y, 2.0, color);
-    draw_line(arrow.from_1.x, arrow.from_1.y, arrow.to.x, arrow.to.y, 2.0, color);
-    draw_line(arrow.from_2.x, arrow.from_2.y, arrow.to.x, arrow.to.y, 2.0, color);
+    draw_line(
+        arrow.from.x,
+        arrow.from.y,
+        arrow.to.x,
+        arrow.to.y,
+        2.0,
+        color,
+    );
+    draw_line(
+        arrow.from_1.x,
+        arrow.from_1.y,
+        arrow.to.x,
+        arrow.to.y,
+        2.0,
+        color,
+    );
+    draw_line(
+        arrow.from_2.x,
+        arrow.from_2.y,
+        arrow.to.x,
+        arrow.to.y,
+        2.0,
+        color,
+    );
 }
 
 #[cfg(test)]
 mod tests {
     use crate::draw::macroquad_draw::spawn_ui_thread;
-    use crate::draw::objects::Model;
+    use crate::draw::objects::{LValue, Model, NValue};
     use crate::draw::view::build_view;
     use crate::nn_build::build_nn;
+    use rand::Rng;
     use std::sync::mpsc;
+    use std::thread::sleep;
+    use std::time::Duration;
 
     #[test]
     #[ignore]
     fn draw_test() {
         let nn = build_nn();
         let view = build_view(&nn);
+        let mut neuron_values: Vec<NValue> = vec![];
+        let mut link_values: Vec<LValue> = vec![];
+        let mut rng = rand::rng();
+
+        for n in view.circles.iter() {
+            neuron_values.push(NValue {
+                id: n.id.clone(),
+                input: rng.random(),
+                value: rng.random(),
+                error: rng.random(),
+            })
+        }
+        for l in view.arrows.iter() {
+            link_values.push(LValue {
+                id: l.id.clone(),
+                value: rng.random(),
+            })
+        }
 
         let (tx, rx) = mpsc::channel::<Model>();
         let join_handle = spawn_ui_thread(view, rx);
+        sleep(Duration::from_secs(3));
+        tx.send(Model { neuron_values, link_values }).unwrap();
+        
         join_handle.join().unwrap();
     }
 }

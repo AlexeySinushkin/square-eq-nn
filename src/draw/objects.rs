@@ -7,6 +7,7 @@ pub const COLOUR_CIRCLE: u32 = 0xce7b47;
 pub const COLOUR_LINK: u32 = 0xb7babf;
 pub const COLOUR_ERROR: u32 = 0xc37ab6;
 
+#[derive(Debug, Clone)]
 pub struct Point {
     pub x: f32,
     pub y: f32,
@@ -14,8 +15,9 @@ pub struct Point {
 
 pub struct NCircle {
     pub id: String,
-    pub center: Point,
     pub caption: Point,
+    pub center: Point,    
+    pub output: Point,
     pub radius: f32,
 }
 
@@ -27,6 +29,10 @@ impl NCircle {
             caption: Point {
                 x,
                 y: y - radius / 2.0,
+            },
+            output: Point {
+                x,
+                y: y + radius / 2.0,
             },
             radius,
         }
@@ -101,6 +107,10 @@ impl Arrow {
             middle: Point { x: mid_x, y: mid_y },
         }
     }
+    
+    pub fn generate_id(from: &String, to: &String) -> String {
+        format!("{}->{}", from, to)
+    }
 }
 
 pub struct PositioningView {
@@ -108,6 +118,17 @@ pub struct PositioningView {
     pub arrows: Vec<Arrow>,
 }
 
+pub struct NValue {
+    pub id: String,
+    pub input: f32,
+    pub value: f32,
+    pub error: f32    
+}
+pub struct LValue {
+    pub id: String,
+    pub value: f32
+}
 pub struct Model {
-    
+    pub neuron_values: Vec<NValue>,
+    pub link_values: Vec<LValue>,
 }
