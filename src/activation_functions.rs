@@ -6,6 +6,7 @@ pub fn apply(function: &ActivationFunction, x: f32) -> f32 {
         Sigmoid => sigmoid(x),
         Square => square(x),
         Sqrt => sqrt(x),
+        Linear => linear(x),
         _ => x,
     }
 }
@@ -15,10 +16,10 @@ pub fn derivative(function: &ActivationFunction, x: f32) -> f32 {
         Sigmoid => sigmoid_derivative(x),
         Square => square_derivative(x),
         Sqrt => sqrt_derivative(x),
+        Linear => linear_derivative(x),
         _ => x,
     }
 }
-
 
 fn sigmoid(x: f32) -> f32 {
     1.0 / (1.0 + (-x).exp())
@@ -37,7 +38,7 @@ fn square_derivative(x: f32) -> f32 {
 }
 
 fn sqrt(x: f32) -> f32 {
-    x.sqrt()
+    if x <= 0.0 { 0.0 } else { x.sqrt() }
 }
 
 fn sqrt_derivative(x: f32) -> f32 {
@@ -46,4 +47,12 @@ fn sqrt_derivative(x: f32) -> f32 {
     } else {
         0.5 / x.sqrt()
     }
+}
+
+fn linear(x: f32) -> f32 {
+    x
+}
+
+fn linear_derivative(x: f32) -> f32 {
+    1.0
 }

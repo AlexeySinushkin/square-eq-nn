@@ -32,7 +32,8 @@ pub enum ActivationFunction {
     None,
     Sigmoid,
     Square,
-    Sqrt
+    Sqrt,
+    Linear
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

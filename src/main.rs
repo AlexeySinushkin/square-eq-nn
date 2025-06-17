@@ -14,7 +14,7 @@ use crate::draw::objects::Model;
 use crate::draw::view::build_view;
 use crate::draw_adapter::DrawAdapter;
 use crate::nn_objects::Network;
-use crate::nn_build::build_nn;
+use crate::nn_build::{build_nn, build_nn1};
 use crate::train_data::{load_train, shuffle, TrainItem};
 
 
@@ -22,8 +22,9 @@ use crate::train_data::{load_train, shuffle, TrainItem};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-    let nn_json = fs::read_to_string("./neural-networks/kx_b/nn2.json")?;
-    let mut nn: Network = serde_json::from_str(&nn_json)?;
+    //let nn_json = fs::read_to_string("./neural-networks/kx_b/nn2.json")?;
+    //let mut nn: Network = serde_json::from_str(&nn_json)?;
+    let mut nn: Network = build_nn1();
     
     let (tx, rx) = mpsc::channel::<Model>();
     let view = build_view(&nn);
@@ -46,6 +47,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let y_neuron = &mut nn.layers[nn.layers_count-1].neurons[0];
         let error = loss(y, y_neuron.output);
         y_neuron.error = error;
+        
         backward(&mut nn, learning_rate);
         
         adapter.send_timed(&nn);        
@@ -62,7 +64,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn loss(target: f32, value: f32) -> f32 {
-    (target - value) / target.max(value)
+    target - value
 }
 
 

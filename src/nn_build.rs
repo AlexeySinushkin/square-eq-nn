@@ -120,6 +120,73 @@ pub fn build_nn() -> Network {
     }
 }
 
+pub fn build_nn1() -> Network {
+    let k = Neuron::new_input("k".to_string());
+    let x = Neuron::new_input("x".to_string());
+    let b = Neuron::new_input("b".to_string());
+    let input_layer = Layer {
+        neurons: [k, x, b, Neuron::new_dummy()],
+    };
+
+    let weight = 0.5;
+    let l1 = Link::new("k".to_string(), weight);
+    let l2 = Link::new("x".to_string(), weight);
+    let l3 = Link::new("b".to_string(), weight);
+    let m1 = Neuron::new_middle(
+        "m1".to_string(),
+        0.23,
+        ActivationFunction::Linear,
+        [l1, l2, l3, Link::new_dummy()],
+    );
+
+    let l1 = Link::new("k".to_string(), weight);
+    let l2 = Link::new("x".to_string(), weight);
+    let l3 = Link::new("b".to_string(), weight);
+    let m2 = Neuron::new_middle(
+        "m2".to_string(),
+        0.24,
+        ActivationFunction::Square,
+        [l1, l2, l3, Link::new_dummy()],
+    );
+
+    let l1 = Link::new("k".to_string(), weight);
+    let l2 = Link::new("x".to_string(), weight);
+    let l3 = Link::new("b".to_string(), weight);
+    let m3 = Neuron::new_middle(
+        "m3".to_string(),
+        0.24,
+        ActivationFunction::Sqrt,
+        [l1, l2, l3, Link::new_dummy()],
+    );
+
+
+    let layer_m = Layer {
+        neurons: [m1, m2, m3, Neuron::new_dummy()],
+    };
+
+
+    let l1 = Link::new("m1".to_string(), weight);
+    let l2 = Link::new("m2".to_string(), weight);
+    let l3 = Link::new("m3".to_string(), weight);
+    let l4 = Link::new_dummy();
+    let y = Neuron::new_middle(
+        "y".to_string(),
+        0.23,
+        ActivationFunction::Linear,
+        [l1, l2, l3, l4],
+    );
+
+
+    let output_layer = Layer {
+        neurons: [y, Neuron::new_dummy(), Neuron::new_dummy(), Neuron::new_dummy()],
+    };
+
+    Network {
+        layers: [input_layer, layer_m, output_layer, Layer::new_dummy(), Layer::new_dummy(), Layer::new_dummy(), Layer::new_dummy()],
+        layers_count: 3,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::nn_build::build_nn;
