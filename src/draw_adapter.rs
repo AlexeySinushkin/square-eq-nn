@@ -14,13 +14,13 @@ impl DrawAdapter {
         Self { tx , last_sent: Instant::now() }
     }
     
-    pub fn send_timed(&mut self, nn: &Network) {
+    pub fn send_timed(&mut self, nn: &Network, iterations: usize) {
         if self.last_sent.elapsed() >= FRAME_RATE {
-            self.send(nn);
+            self.send(nn, iterations);
         }
     }
     
-    pub fn send(&mut self, nn: &Network) {
+    pub fn send(&mut self, nn: &Network, iterations: usize) {
         let mut neuron_values: Vec<NValue> = vec![];
         let mut link_values: Vec<LValue> = vec![];
         for layer in nn.layers.iter() {
@@ -40,7 +40,7 @@ impl DrawAdapter {
             }        
         }
 
-        self.tx.send(Model { neuron_values, link_values }).unwrap();
+        self.tx.send(Model { neuron_values, link_values, iterations }).unwrap();
         self.last_sent = Instant::now()
     }
 }

@@ -24,6 +24,7 @@ pub(crate) fn spawn_ui_thread(view: PositioningView, rx: Receiver<Model>) -> thr
                     .expect("Failed to load Arial font");
                 let text_styles = TextStyles { font };
                 let mut model : Option<Model> = None;
+                let mut iteration_point = Point{x: 100.0, y: 20.0};
                 loop {
                     draw_background(&view, &text_styles);
 
@@ -33,7 +34,10 @@ pub(crate) fn spawn_ui_thread(view: PositioningView, rx: Receiver<Model>) -> thr
                     }
                     if let Some(model) = model.as_ref() {
                         draw_values(&view, &model,  &text_styles);
+                        let iteration = format!("{}", model.iterations);
+                        draw_text_center(&iteration, &iteration_point, text_styles.neuron_error())
                     }
+                    
                     next_frame().await;
                 }
             },
@@ -174,7 +178,7 @@ mod tests {
         let (tx, rx) = mpsc::channel::<Model>();
         let join_handle = spawn_ui_thread(view, rx);
         sleep(Duration::from_secs(3));
-        tx.send(Model { neuron_values, link_values }).unwrap();
+        tx.send(Model { neuron_values, link_values, iterations: 0 }).unwrap();
         
         join_handle.join().unwrap();
     }
