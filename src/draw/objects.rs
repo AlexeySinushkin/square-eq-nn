@@ -14,16 +14,19 @@ pub struct Point {
 pub struct NCircle {
     pub id: String,
     pub caption: Point,
+    pub caption_text: String,
     pub center: Point,    
     pub output: Point,
     pub radius: f32,
 }
 
 impl NCircle {
-    pub fn new(id: String, x: f32, y: f32, radius: f32) -> Self {
+    pub fn new(id: String, func_name: String, x: f32, y: f32, radius: f32) -> Self {
+        let caption_text = format!("{id} {func_name}");
         NCircle {
             id,
             center: Point { x, y },
+            caption_text,
             caption: Point {
                 x,
                 y: y - radius / 2.0,

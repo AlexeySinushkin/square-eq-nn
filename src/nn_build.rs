@@ -155,7 +155,7 @@ pub fn build_nn1() -> Network {
     let m3 = Neuron::new_middle(
         "m3".to_string(),
         0.24,
-        ActivationFunction::Sqrt,
+        ActivationFunction::Linear,
         [l1, l2, l3, Link::new_dummy()],
     );
 

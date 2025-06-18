@@ -41,17 +41,17 @@ pub(crate) fn spawn_ui_thread(view: PositioningView, rx: Receiver<Model>, tx: Se
                     }
                     if let Some(model) = model.as_ref() {
                         draw_values(&view, &model,  &text_styles);
-                        
+
                         let iteration = format!("{}", model.iterations);
                         draw_text_center(&iteration, &iteration_point, text_styles.neuron_error());
-                        pause_button.active = model.button_pause_active;                        
+                        pause_button.active = model.button_pause_active;
                         stepping_button.active = model.button_stepping_active;
                         play_button.active = model.button_play_active;
                         pause_button.draw(&text_styles);
                         stepping_button.draw(&text_styles);
                         play_button.draw(&text_styles);
                     }
-                    
+
                     let mouse_pos = mouse_position().into();
                     if is_mouse_button_pressed(MouseButton::Left) {
                         if pause_button.is_clicked(mouse_pos) {
@@ -74,9 +74,9 @@ pub(crate) fn spawn_ui_thread(view: PositioningView, rx: Receiver<Model>, tx: Se
 fn draw_values(view: &PositioningView, model: &Model, text_style: &TextStyles) {
     for circle_value in model.neuron_values.iter() {
         if let Some(circle) = view.circles.iter().find(|c| c.id == circle_value.id) {
-            let error = format!("{:.5}", circle_value.error);
+            let error = format!("err: {:.5}", circle_value.error);
             draw_text_center(&error, &circle.center, text_style.neuron_error());
-            let output = format!("{:.2}", circle_value.value);
+            let output = format!("out: {:.2}", circle_value.value);
             draw_text_center(&output, &circle.output, text_style.neuron_header())
         }
     }
@@ -135,7 +135,7 @@ fn draw_neuron_circle(circle: &NCircle, text_style: &TextStyles) {
         (circle.radius - 2.0) as f32,
         Color::from_hex(COLOUR_BACKGROUND),
     );
-    draw_text_center(&circle.id, &circle.caption, text_style.neuron_header());
+    draw_text_center(&circle.caption_text, &circle.caption, text_style.neuron_header());
 }
 
 fn draw_arrow(arrow: &Arrow) {

@@ -1,4 +1,5 @@
 use std::cmp::PartialEq;
+use std::ops::Sub;
 use std::sync::mpsc::Sender;
 use std::time::{Duration, Instant};
 use crate::draw::objects::{LValue, Model, NValue};
@@ -14,7 +15,7 @@ pub struct DrawAdapter {
 
 impl DrawAdapter {
     pub fn new(tx: Sender<Model>) -> Self {
-        Self { tx , last_sent: Instant::now() }
+        Self { tx , last_sent: Instant::now().sub(FRAME_RATE) }
     }
     
     pub fn send_timed(&mut self, nn: &Network, env: &ExecutionObjects) {

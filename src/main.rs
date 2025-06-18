@@ -39,7 +39,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut rng = rand::rng();
     let mut iteration = 0;
     let mut last_step = Instant::now();
-    let mut run_mode = RunMode::Stepping;
+    let mut run_mode = RunMode::Pause;
 
     let mut execution = ExecutionContext {
         nn,
@@ -138,7 +138,7 @@ impl ExecutionContext {
                 for link in neuron.input_links.iter_mut().filter(|l| !l.is_dummy()) {
                     let derive = derivative(&neuron.function_name, neuron.sum_input);
                     let delta = neuron.error * derive * prev_layer.get_value(&link.source_id);
-                    link.weight += delta * self.learning_rate;
+                    link.weight -= delta * self.learning_rate;
                 }
             }
             //error updates
@@ -223,7 +223,7 @@ impl ExecutionContext {
     }
     fn mse(target: f32, value: f32) -> f32 {
         let diff = target - value;
-        diff * diff
+        diff.abs()
     }
     fn mse_derivative(target: f32, value: f32) -> f32 {
         let diff = target - value;

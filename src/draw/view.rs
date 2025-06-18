@@ -20,7 +20,8 @@ pub fn build_view(nn: &Network) -> PositioningView {
         let mut y = (padding_top + neuron_space / 2.0) as f32;
         for neuron in layer.neurons.iter().filter(|n| !n.is_dummy()) {
             let id = neuron.id.clone();
-            circles.push(NCircle::new(id, x, y, circle_radius));
+            let func_name = format!("{:?}",  neuron.function_name);
+            circles.push(NCircle::new(id, func_name, x, y, circle_radius));
             y += neuron_space
         }
         x += layer_width;
