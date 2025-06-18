@@ -41,6 +41,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut last_step = Instant::now();
     let mut run_mode = RunMode::Pause;
 
+    let k: f32 = rng.random_range(-10..10) as f32;
+    let x: f32 = rng.random_range(-10..10) as f32;
+    let b: f32 = rng.random_range(-10..10) as f32;
+    let y = k * x + b;    
     let mut execution = ExecutionContext {
         nn,
         iteration,
@@ -54,7 +58,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     loop {
-        execution.train_loop();
+        execution.train_loop(k, x, b, y).expect("correct train loop");
+        iteration += 1;
         if execution.error < 0.1 {
             break;
         }
@@ -77,12 +82,12 @@ struct ExecutionContext {
 }
 
 impl ExecutionContext {
-    pub fn train_loop(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-
+    pub fn train_loop(&mut self, k: f32, x: f32, b: f32, y: f32) -> Result<(), Box<dyn std::error::Error>> {
+/*
         let k: f32 = self.rng.random_range(-10..10) as f32;
         let x: f32 = self.rng.random_range(-10..10) as f32;
         let b: f32 = self.rng.random_range(-10..10) as f32;
-        let y = k * x + b;
+        let y = k * x + b;*/
 
         self.nn.layers[0].neurons[0].output = k;
         self.nn.layers[0].neurons[1].output = x;
@@ -94,7 +99,7 @@ impl ExecutionContext {
         let y_neuron = &mut self.nn.layers[self.nn.layers_count - 1].neurons[0];
         y_neuron.error = Self::loss(y, y_neuron.output);
         println!("y error: {}", y_neuron.error);
-        
+
         self.backward();
         self.send_state();
         self.hang_out();
@@ -132,7 +137,7 @@ impl ExecutionContext {
             let (prev, current) = self.nn.layers.split_at_mut(layer_index);
             let prev_layer = &mut prev[layer_index - 1];
             let current_layer = &mut current[0];
-            
+
             //распространяем ошибку
             for prev_neuron in &mut prev_layer.neurons.iter_mut().filter(|n| !n.is_dummy()) {
                 //суммируем все ошибки, которые внес нейрон(ы) предыдущего слоя
@@ -150,7 +155,7 @@ impl ExecutionContext {
                 prev_neuron.error = error_sum;
             }
         }
-        
+
         //обновляем веса
         for layer_index in 1..self.nn.layers_count {
             let (prev, current) = self.nn.layers.split_at_mut(layer_index);
@@ -183,7 +188,7 @@ impl ExecutionContext {
         };
         self.tx_adapter.send(&self.nn, &execution_objects);
     }
-    
+
     fn hang_out(&mut self) {
         if self.run_mode == RunMode::Stepping || self.run_mode == RunMode::Pause {
             loop {
@@ -231,13 +236,11 @@ impl ExecutionContext {
     }
 
     fn loss(target: f32, value: f32) -> f32 {
-        let diff = target - value;
-        let max = target.abs().max(value.abs());
-        if max <= 0.00001 {
-            0.0
-        }else{
-            diff/max
-        }
+        let sign = (target - value).signum();
+        let t = target.abs();
+        let o = value.abs();
+        let diff = (t-o).abs();
+        diff/t.max(o)*sign
     }
 }
 

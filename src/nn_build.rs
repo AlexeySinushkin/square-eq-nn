@@ -1,3 +1,4 @@
+use rand::Rng;
 use crate::Network;
 use crate::nn_objects::{ActivationFunction, Layer, Link, Neuron};
 
@@ -127,11 +128,11 @@ pub fn build_nn1() -> Network {
     let input_layer = Layer {
         neurons: [k, x, b, Neuron::new_dummy()],
     };
-
+    let mut rng = rand::rng();
     let weight = 0.5;
-    let l1 = Link::new("k".to_string(), weight);
-    let l2 = Link::new("x".to_string(), weight);
-    let l3 = Link::new("b".to_string(), weight);
+    let l1 = Link::new("k".to_string(), rng.random_range(0.0..1.00));
+    let l2 = Link::new("x".to_string(), rng.random_range(0.0..1.00));
+    let l3 = Link::new("b".to_string(), rng.random_range(0.0..1.00));
     let m1 = Neuron::new_middle(
         "m1".to_string(),
         0.23,
@@ -139,47 +140,26 @@ pub fn build_nn1() -> Network {
         [l1, l2, l3, Link::new_dummy()],
     );
 
-    let l1 = Link::new("k".to_string(), weight);
-    let l2 = Link::new("x".to_string(), weight);
-    let l3 = Link::new("b".to_string(), weight);
+    let l1 = Link::new("k".to_string(), rng.random_range(0.0..1.00));
+    let l2 = Link::new("x".to_string(), rng.random_range(0.0..1.00));
+    let l3 = Link::new("b".to_string(), rng.random_range(0.0..1.00));
     let m2 = Neuron::new_middle(
         "m2".to_string(),
-        0.24,
-        ActivationFunction::Square,
-        [l1, l2, l3, Link::new_dummy()],
-    );
-
-    let l1 = Link::new("k".to_string(), weight);
-    let l2 = Link::new("x".to_string(), weight);
-    let l3 = Link::new("b".to_string(), weight);
-    let m3 = Neuron::new_middle(
-        "m3".to_string(),
         0.24,
         ActivationFunction::Linear,
         [l1, l2, l3, Link::new_dummy()],
     );
 
-    let l1 = Link::new("k".to_string(), weight);
-    let l2 = Link::new("x".to_string(), weight);
-    let l3 = Link::new("b".to_string(), weight);
-    let m4 = Neuron::new_middle(
-        "m4".to_string(),
-        0.24,
-        ActivationFunction::Relu,
-        [l1, l2, l3, Link::new_dummy()],
-    );
-
-
 
     let layer_m = Layer {
-        neurons: [m1, m2, m3, m4],
+        neurons: [m1, m2, Neuron::new_dummy(), Neuron::new_dummy()],
     };
 
 
     let l1 = Link::new("m1".to_string(), weight);
     let l2 = Link::new("m2".to_string(), weight);
-    let l3 = Link::new("m3".to_string(), weight);
-    let l4 = Link::new("m4".to_string(), weight);
+    let l3 = Link::new_dummy();
+    let l4 = Link::new_dummy();
     let y = Neuron::new_middle(
         "y".to_string(),
         0.23,
