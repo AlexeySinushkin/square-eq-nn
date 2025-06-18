@@ -4,9 +4,9 @@
       "neurons": [
         {
           "id": "k",
-          "output": 0.0,
+          "output": 3.0,
           "sum_input": 0.0,
-          "error": 1.0,
+          "error": 0.000017140368,
           "function_name": "None",
           "input_links": [
             {
@@ -29,9 +29,9 @@
         },
         {
           "id": "x",
-          "output": 0.0,
+          "output": 2.0,
           "sum_input": 0.0,
-          "error": 1.0,
+          "error": -8.7261196e-7,
           "function_name": "None",
           "input_links": [
             {
@@ -54,9 +54,9 @@
         },
         {
           "id": "b",
-          "output": 0.0,
+          "output": 7.0,
           "sum_input": 0.0,
-          "error": 1.0,
+          "error": 0.00010801842,
           "function_name": "None",
           "input_links": [
             {
@@ -108,22 +108,22 @@
       "neurons": [
         {
           "id": "m1",
-          "output": 0.23,
-          "sum_input": 0.0,
-          "error": 1.0,
-          "function_name": "Sigmoid",
+          "output": 11.872991,
+          "sum_input": 11.872991,
+          "error": 0.000064065796,
+          "function_name": "Linear",
           "input_links": [
             {
               "source_id": "k",
-              "weight": 0.1
+              "weight": 0.2670151
             },
             {
               "source_id": "x",
-              "weight": 0.1
+              "weight": 0.07935124
             },
             {
               "source_id": "b",
-              "weight": 0.1
+              "weight": 1.5590352
             },
             {
               "source_id": "",
@@ -133,22 +133,22 @@
         },
         {
           "id": "m2",
-          "output": 0.24,
-          "sum_input": 0.0,
-          "error": 1.0,
-          "function_name": "Sigmoid",
+          "output": 4.033263,
+          "sum_input": 4.033263,
+          "error": 0.000011194975,
+          "function_name": "Linear",
           "input_links": [
             {
               "source_id": "k",
-              "weight": 0.1
+              "weight": 0.0030232023
             },
             {
               "source_id": "x",
-              "weight": 0.1
+              "weight": -0.53205156
             },
             {
               "source_id": "b",
-              "weight": 0.1
+              "weight": 0.7268996
             },
             {
               "source_id": "",
@@ -157,131 +157,27 @@
           ]
         },
         {
-          "id": "m3",
-          "output": 0.24,
+          "id": "",
+          "output": 0.0,
           "sum_input": 0.0,
           "error": 1.0,
-          "function_name": "Sigmoid",
+          "function_name": "None",
           "input_links": [
             {
-              "source_id": "k",
-              "weight": 0.1
-            },
-            {
-              "source_id": "x",
-              "weight": 0.1
-            },
-            {
-              "source_id": "b",
-              "weight": 0.1
+              "source_id": "",
+              "weight": 0.0
             },
             {
               "source_id": "",
               "weight": 0.0
-            }
-          ]
-        },
-        {
-          "id": "m4",
-          "output": 0.24,
-          "sum_input": 0.0,
-          "error": 1.0,
-          "function_name": "Sigmoid",
-          "input_links": [
-            {
-              "source_id": "k",
-              "weight": 0.1
-            },
-            {
-              "source_id": "x",
-              "weight": 0.1
-            },
-            {
-              "source_id": "b",
-              "weight": 0.1
             },
             {
               "source_id": "",
               "weight": 0.0
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "neurons": [
-        {
-          "id": "n1",
-          "output": 0.23,
-          "sum_input": 0.0,
-          "error": 1.0,
-          "function_name": "Sigmoid",
-          "input_links": [
-            {
-              "source_id": "m1",
-              "weight": 0.1
             },
             {
-              "source_id": "m2",
-              "weight": 0.1
-            },
-            {
-              "source_id": "m3",
-              "weight": 0.1
-            },
-            {
-              "source_id": "m4",
-              "weight": 0.1
-            }
-          ]
-        },
-        {
-          "id": "n2",
-          "output": 0.23,
-          "sum_input": 0.0,
-          "error": 1.0,
-          "function_name": "Sigmoid",
-          "input_links": [
-            {
-              "source_id": "m1",
-              "weight": 0.1
-            },
-            {
-              "source_id": "m2",
-              "weight": 0.1
-            },
-            {
-              "source_id": "m3",
-              "weight": 0.1
-            },
-            {
-              "source_id": "m4",
-              "weight": 0.1
-            }
-          ]
-        },
-        {
-          "id": "n3",
-          "output": 0.23,
-          "sum_input": 0.0,
-          "error": 1.0,
-          "function_name": "Sigmoid",
-          "input_links": [
-            {
-              "source_id": "m1",
-              "weight": 0.1
-            },
-            {
-              "source_id": "m2",
-              "weight": 0.1
-            },
-            {
-              "source_id": "m3",
-              "weight": 0.1
-            },
-            {
-              "source_id": "m4",
-              "weight": 0.1
+              "source_id": "",
+              "weight": 0.0
             }
           ]
         },
@@ -316,22 +212,22 @@
       "neurons": [
         {
           "id": "y",
-          "output": 0.23,
-          "sum_input": 0.0,
-          "error": 1.0,
-          "function_name": "Sigmoid",
+          "output": 12.999194,
+          "sum_input": 12.999194,
+          "error": 0.00006198883,
+          "function_name": "Linear",
           "input_links": [
             {
-              "source_id": "n1",
-              "weight": 0.1
+              "source_id": "m1",
+              "weight": 1.0335062
             },
             {
-              "source_id": "n2",
-              "weight": 0.1
+              "source_id": "m2",
+              "weight": 0.1805969
             },
             {
-              "source_id": "n3",
-              "weight": 0.1
+              "source_id": "",
+              "weight": 0.0
             },
             {
               "source_id": "",
@@ -341,22 +237,126 @@
         },
         {
           "id": "",
-          "output": 0.23,
+          "output": 0.0,
           "sum_input": 0.0,
           "error": 1.0,
-          "function_name": "Sigmoid",
+          "function_name": "None",
           "input_links": [
             {
-              "source_id": "n1",
-              "weight": 0.1
+              "source_id": "",
+              "weight": 0.0
             },
             {
-              "source_id": "n2",
-              "weight": 0.1
+              "source_id": "",
+              "weight": 0.0
             },
             {
-              "source_id": "n3",
-              "weight": 0.1
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "neurons": [
+        {
+          "id": "",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            }
+          ]
+        },
+        {
+          "id": "",
+          "output": 0.0,
+          "sum_input": 0.0,
+          "error": 1.0,
+          "function_name": "None",
+          "input_links": [
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
+            },
+            {
+              "source_id": "",
+              "weight": 0.0
             },
             {
               "source_id": "",
@@ -729,5 +729,5 @@
       ]
     }
   ],
-  "layers_count": 4
+  "layers_count": 3
 }

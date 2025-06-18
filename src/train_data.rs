@@ -1,6 +1,8 @@
 use rand::seq::SliceRandom;
+use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::fs;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TrainItem {
     pub a: f32,
@@ -9,6 +11,42 @@ pub struct TrainItem {
     pub x1: f32,
     pub x2: f32,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TrainItemCommon {
+    pub input_1: f32,
+    pub input_2: f32,
+    pub input_3: f32,
+    pub input_4: f32,
+    pub output_1: f32,
+    pub output_2: f32,
+    pub output_3: f32,
+    pub output_4: f32,
+}
+
+pub fn load_kx_b() -> Vec<TrainItemCommon>{
+    let mut rng = rand::rng();
+    let mut result = vec![];
+    
+    for _i in 0..100 {
+        let k: f32 = rng.random_range(-10..10) as f32;
+        let x: f32 = rng.random_range(-10..10) as f32;
+        let b: f32 = rng.random_range(-10..10) as f32;
+        let y = k * x + b;       
+        result.push(TrainItemCommon{
+            input_1: k,
+            input_2: x,
+            input_3: b,
+            input_4: 0.0,
+            output_1: y,
+            output_2:0.0,
+            output_3:0.0,
+            output_4:0.0
+        })
+    }
+    result    
+}
+
 
 pub fn load_train() -> Result<Vec<TrainItem>, Box<dyn std::error::Error>> {
     let train_file_content = fs::read_to_string("./train.json")?;
@@ -23,8 +61,8 @@ pub fn shuffle<T>(train_items: &mut [T]) {
 
 #[cfg(test)]
 mod tests {
+    use crate::train_data::{load_train, TrainItem};
     use std::fs;
-    use crate::train_data::{TrainItem, load_train};
     const EPSILON: f32 = 1e-3;
     
     fn calculate_eq(item: &TrainItem) -> (f32, f32) {

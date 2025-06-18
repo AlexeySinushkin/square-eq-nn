@@ -12,22 +12,29 @@ use crate::draw::objects::Model;
 use crate::draw::view::build_view;
 use crate::draw_adapter::DrawAdapter;
 use crate::execution_objects::{Events, ExecutionObjects, RunMode};
-use crate::nn_build::{build_nn, build_nn1};
+use crate::nn_build::build_nn1;
 use crate::nn_objects::Network;
+use crate::train_data::{load_kx_b, TrainItemCommon};
 use rand::prelude::ThreadRng;
-use rand::{Rng, rng};
-use std::io::Error;
+use rand::Rng;
+use std::fs;
+use std::path::Path;
 use std::sync::mpsc;
-use std::sync::mpsc::{Receiver, Sender};
-use std::thread::sleep;
+use std::sync::mpsc::Receiver;
 use std::time::{Duration, Instant};
+use serde_json::json;
 
 const STEPPING_DURATION: Duration = Duration::from_millis(1000);
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    //let nn_json = fs::read_to_string("./neural-networks/kx_b/nn2.json")?;
-    //let mut nn: Network = serde_json::from_str(&nn_json)?;
-    let mut nn: Network = build_nn1();
+    let path = Path::new("nn.json");
+    let mut nn = if path.exists() {
+        let nn_json = fs::read_to_string(path)?;
+        serde_json::from_str(&nn_json)?
+    } else {
+       build_nn1()
+    };
+    
 
     let (tx_data, rx_data) = mpsc::channel::<Model>();
     let (tx_events, rx_events) = mpsc::channel::<Events>();
@@ -35,16 +42,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let join_handle = spawn_ui_thread(view, rx_data, tx_events);
     let mut adapter = DrawAdapter::new(tx_data);
 
-    let mut learning_rate = 0.1;
+    let mut learning_rate = 0.01;
     let mut rng = rand::rng();
     let mut iteration = 0;
     let mut last_step = Instant::now();
     let mut run_mode = RunMode::Pause;
 
-    let k: f32 = rng.random_range(-10..10) as f32;
-    let x: f32 = rng.random_range(-10..10) as f32;
-    let b: f32 = rng.random_range(-10..10) as f32;
-    let y = k * x + b;    
+    let train_items = load_kx_b();
+    
     let mut execution = ExecutionContext {
         nn,
         iteration,
@@ -56,11 +61,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         tx_adapter: adapter,
         rx_events,
     };
-
+    
     loop {
-        execution.train_loop(k, x, b, y).expect("correct train loop");
-        iteration += 1;
-        if execution.error < 0.1 {
+        let mut epoch_error =  0.0;
+        for train_item in train_items.iter() {
+            execution.train_loop(&train_item).expect("correct train loop");
+            iteration += 1;
+            epoch_error += execution.error.abs();          
+        }
+        if epoch_error/(train_items.len() as f32) < 0.001 {
+            let json = serde_json::to_string_pretty(&execution.nn).unwrap();
+            fs::write("nn.json", json).unwrap();
+            execution.send_state_immidiately();
             break;
         }
     }
@@ -82,29 +94,25 @@ struct ExecutionContext {
 }
 
 impl ExecutionContext {
-    pub fn train_loop(&mut self, k: f32, x: f32, b: f32, y: f32) -> Result<(), Box<dyn std::error::Error>> {
-/*
-        let k: f32 = self.rng.random_range(-10..10) as f32;
-        let x: f32 = self.rng.random_range(-10..10) as f32;
-        let b: f32 = self.rng.random_range(-10..10) as f32;
-        let y = k * x + b;*/
-
-        self.nn.layers[0].neurons[0].output = k;
-        self.nn.layers[0].neurons[1].output = x;
-        self.nn.layers[0].neurons[2].output = b;
+    pub fn train_loop(&mut self, train_item: &TrainItemCommon) -> Result<(), Box<dyn std::error::Error>> {
+        self.nn.layers[0].neurons[0].output = train_item.input_1;
+        self.nn.layers[0].neurons[1].output = train_item.input_2;
+        self.nn.layers[0].neurons[2].output = train_item.input_3;
         self.forward();
         self.send_state();
         self.hang_out();
-
+        
         let y_neuron = &mut self.nn.layers[self.nn.layers_count - 1].neurons[0];
-        y_neuron.error = Self::loss(y, y_neuron.output);
-        println!("y error: {}", y_neuron.error);
-
+        let error = Self::loss(train_item.output_1, y_neuron.output);
+        
+        self.error = error;
+        
+        y_neuron.error = error;
         self.backward();
         self.send_state();
         self.hang_out();
 
-        self.iteration += 1;
+        self.iteration += 1;        
         if self.learning_rate > 0.001 {
             self.learning_rate *= 0.999;
         }
