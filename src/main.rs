@@ -92,10 +92,9 @@ impl ExecutionContext {
         self.hang_out();
 
         let y_neuron = &mut self.nn.layers[self.nn.layers_count - 1].neurons[0];
-        let error = Self::mse(y, y_neuron.output);
-        Self::assert_not_nan(error);
-        y_neuron.error = Self::mse_derivative(y, y_neuron.output);
-
+        y_neuron.error = Self::loss(y, y_neuron.output);
+        println!("y error: {}", y_neuron.error);
+        
         self.backward();
         self.send_state();
         self.hang_out();
@@ -133,15 +132,8 @@ impl ExecutionContext {
             let (prev, current) = self.nn.layers.split_at_mut(layer_index);
             let prev_layer = &mut prev[layer_index - 1];
             let current_layer = &mut current[0];
-            //weight updates
-            for neuron in &mut current_layer.neurons.iter_mut().filter(|n| !n.is_dummy()) {
-                for link in neuron.input_links.iter_mut().filter(|l| !l.is_dummy()) {
-                    let derive = derivative(&neuron.function_name, neuron.sum_input);
-                    let delta = neuron.error * derive * prev_layer.get_value(&link.source_id);
-                    link.weight -= delta * self.learning_rate;
-                }
-            }
-            //error updates
+            
+            //распространяем ошибку
             for prev_neuron in &mut prev_layer.neurons.iter_mut().filter(|n| !n.is_dummy()) {
                 //суммируем все ошибки, которые внес нейрон(ы) предыдущего слоя
                 let mut error_sum = 0.0;
@@ -155,8 +147,23 @@ impl ExecutionContext {
                         error_sum += link.weight * neuron.error;
                     }
                 }
-                prev_neuron.error =
-                    error_sum * derivative(&prev_neuron.function_name, prev_neuron.sum_input);
+                prev_neuron.error = error_sum;
+            }
+        }
+        
+        //обновляем веса
+        for layer_index in 1..self.nn.layers_count {
+            let (prev, current) = self.nn.layers.split_at_mut(layer_index);
+            let prev_layer = &prev[layer_index - 1];
+            let current_layer = &mut current[0];
+
+            for neuron in &mut current_layer.neurons.iter_mut().filter(|n| !n.is_dummy()) {
+                for link in neuron.input_links.iter_mut().filter(|l| !l.is_dummy()) {
+                    let derive = derivative(&neuron.function_name, neuron.sum_input);
+                    let mut delta = neuron.error * derive * prev_layer.get_value(&link.source_id);
+                    delta *= self.learning_rate;
+                    link.weight += delta;
+                }
             }
         }
     }
@@ -185,6 +192,7 @@ impl ExecutionContext {
                         Events::PauseRequested => {
                             self.run_mode = RunMode::Pause;
                             self.send_state_immidiately();
+                            break;
                         },
                         Events::SteppingRequested => {
                             self.run_mode = RunMode::Stepping;
@@ -221,13 +229,15 @@ impl ExecutionContext {
             panic!("Encountered NaN!");
         }
     }
-    fn mse(target: f32, value: f32) -> f32 {
+
+    fn loss(target: f32, value: f32) -> f32 {
         let diff = target - value;
-        diff.abs()
-    }
-    fn mse_derivative(target: f32, value: f32) -> f32 {
-        let diff = target - value;
-        2.0 * diff
+        let max = target.abs().max(value.abs());
+        if max <= 0.00001 {
+            0.0
+        }else{
+            diff/max
+        }
     }
 }
 
