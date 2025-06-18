@@ -1,6 +1,8 @@
+use std::cmp::PartialEq;
 use std::sync::mpsc::Sender;
 use std::time::{Duration, Instant};
 use crate::draw::objects::{LValue, Model, NValue};
+use crate::execution_objects::{ExecutionObjects, RunMode};
 use crate::nn_objects::Network;
 
 const FRAME_RATE: Duration = Duration::from_millis(1000 / 20);
@@ -9,18 +11,19 @@ pub struct DrawAdapter {
     last_sent: Instant,
 }
 
+
 impl DrawAdapter {
     pub fn new(tx: Sender<Model>) -> Self {
         Self { tx , last_sent: Instant::now() }
     }
     
-    pub fn send_timed(&mut self, nn: &Network, iterations: usize) {
+    pub fn send_timed(&mut self, nn: &Network, env: &ExecutionObjects) {
         if self.last_sent.elapsed() >= FRAME_RATE {
-            self.send(nn, iterations);
+            self.send(nn, env);
         }
     }
     
-    pub fn send(&mut self, nn: &Network, iterations: usize) {
+    pub fn send(&mut self, nn: &Network, env: &ExecutionObjects) {
         let mut neuron_values: Vec<NValue> = vec![];
         let mut link_values: Vec<LValue> = vec![];
         for layer in nn.layers.iter() {
@@ -40,7 +43,12 @@ impl DrawAdapter {
             }        
         }
 
-        self.tx.send(Model { neuron_values, link_values, iterations }).unwrap();
+        self.tx.send(Model { neuron_values, link_values, 
+            iterations: env.iteration,
+            button_pause_active : env.run_mode==RunMode::Pause,
+            button_stepping_active: env.run_mode==RunMode::Stepping,
+            button_play_active: env.run_mode==RunMode::Running,
+        }).unwrap();
         self.last_sent = Instant::now()
     }
 }

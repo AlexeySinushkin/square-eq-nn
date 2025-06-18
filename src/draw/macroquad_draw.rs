@@ -1,14 +1,13 @@
 use crate::draw::font_objects::TextStyles;
-use crate::draw::objects::{
-    Arrow, COLOUR_BACKGROUND, COLOUR_CIRCLE, COLOUR_LINK, Model, NCircle, Point, PositioningView,
-    WINDOW_HEIGHT, WINDOW_WIDTH,
-};
+use crate::draw::objects::{Arrow, COLOUR_BACKGROUND, COLOUR_CIRCLE, COLOUR_LINK, Model, NCircle, Point, PositioningView, WINDOW_HEIGHT, WINDOW_WIDTH};
 use macroquad::prelude::*;
-use std::sync::mpsc::Receiver;
+use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
+use crate::draw::gui_elements::Button;
+use crate::execution_objects::Events;
 
 // Function that runs macroquad main loop
-pub(crate) fn spawn_ui_thread(view: PositioningView, rx: Receiver<Model>) -> thread::JoinHandle<()> {
+pub(crate) fn spawn_ui_thread(view: PositioningView, rx: Receiver<Model>, tx: Sender<Events>) -> thread::JoinHandle<()> {
     thread::spawn(move || {
         // You must call macroquad via this attribute in a standalone thread:
         macroquad::Window::from_config(
@@ -24,20 +23,47 @@ pub(crate) fn spawn_ui_thread(view: PositioningView, rx: Receiver<Model>) -> thr
                     .expect("Failed to load Arial font");
                 let text_styles = TextStyles { font };
                 let mut model : Option<Model> = None;
-                let mut iteration_point = Point{x: 100.0, y: 20.0};
-                loop {
-                    draw_background(&view, &text_styles);
+                let iteration_point = Point{x: 100.0, y: 20.0};
+                let point = Point { x: WINDOW_WIDTH as f32 / 2.0, y: WINDOW_HEIGHT as f32 - 100.0 };
+                let mut pause_button = Button::new("PAUSE".to_string(), point.clone(), &text_styles);
 
-                    // Try to receive updated text
+                let mut stepping_button = Button::new("STEPPING".to_string(),
+                                                      Point { x: pause_button.rect.x + pause_button.rect.w + 10.0, y: point.y },
+                                                      &text_styles);
+                let mut play_button = Button::new("PLAY".to_string(),
+                                                  Point { x: stepping_button.rect.x + stepping_button.rect.w + 10.0, y: point.y },
+                                                  &text_styles);
+                loop {
+
+                    draw_background(&view, &text_styles);
                     if let Ok(new_msg) = rx.try_recv() {
                         model = Some(new_msg);
                     }
                     if let Some(model) = model.as_ref() {
                         draw_values(&view, &model,  &text_styles);
+                        
                         let iteration = format!("{}", model.iterations);
-                        draw_text_center(&iteration, &iteration_point, text_styles.neuron_error())
+                        draw_text_center(&iteration, &iteration_point, text_styles.neuron_error());
+                        pause_button.active = model.button_pause_active;                        
+                        stepping_button.active = model.button_stepping_active;
+                        play_button.active = model.button_play_active;
+                        pause_button.draw(&text_styles);
+                        stepping_button.draw(&text_styles);
+                        play_button.draw(&text_styles);
                     }
                     
+                    let mouse_pos = mouse_position().into();
+                    if is_mouse_button_pressed(MouseButton::Left) {
+                        if pause_button.is_clicked(mouse_pos) {
+                            tx.send(Events::PauseRequested).unwrap();;
+                        }
+                        if stepping_button.is_clicked(mouse_pos) {
+                            tx.send(Events::SteppingRequested).unwrap();;
+                        }
+                        if play_button.is_clicked(mouse_pos) {
+                            tx.send(Events::PlayRequested).unwrap();;
+                        }
+                    }
                     next_frame().await;
                 }
             },

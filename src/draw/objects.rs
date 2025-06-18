@@ -130,4 +130,8 @@ pub struct Model {
     pub neuron_values: Vec<NValue>,
     pub link_values: Vec<LValue>,
     pub iterations: usize,
+    pub button_pause_active: bool,
+    pub button_stepping_active: bool,
+    pub button_play_active: bool,
 }
+
